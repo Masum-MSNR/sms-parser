@@ -72,11 +72,17 @@ class MainActivity : AppCompatActivity() {
                     if (responsePojo != null) {
                         if (!responsePojo.results.verified) {
                             binding.tvResponse.text = "$url \nThis is a phishing url"
+                        } else {
+                            binding.tvResponse.text = "$url \nThis is not a phishing url"
                         }
+                    } else {
+                        binding.tvResponse.text = "Something went wrong"
                     }
+
                 }
 
                 override fun onFailure(call: Call<ResponsePojo>, t: Throwable) {
+                    binding.tvResponse.text = "Something went wrong"
                     t.stackTrace
                 }
             })
