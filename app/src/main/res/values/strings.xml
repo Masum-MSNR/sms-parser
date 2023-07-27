@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Sms Parser</string>
+    <string name="for_background_process">For Background Process</string>
+    <string name="allow_permission">Allow Permission</string>
+    <string name="check">Check</string>
+    <string name="enter_url">Enter url</string>
+    <string name="all_set">All Set!</string>
 </resources>

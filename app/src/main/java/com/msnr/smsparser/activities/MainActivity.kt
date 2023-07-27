@@ -8,26 +8,29 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.msnr.smsparser.R
+import com.msnr.smsparser.databinding.ActivityMainBinding
+import com.msnr.smsparser.network.WebService
+import com.msnr.smsparser.network.pojo.ResponsePojo
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var button: Button
-    private lateinit var text: TextView
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        button = findViewById(R.id.btnAllowPermission)
-        text = findViewById(R.id.tvPermissionStatus)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.RECEIVE_SMS
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            button.visibility = Button.VISIBLE
-            text.visibility = TextView.GONE
+            binding.btnAllowPermission.visibility = Button.VISIBLE
+            binding.tvPermissionStatus.visibility = TextView.GONE
         } else {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
                 if (ActivityCompat.checkSelfPermission(
@@ -35,25 +38,48 @@ class MainActivity : AppCompatActivity() {
                         Manifest.permission.POST_NOTIFICATIONS
                     ) != PackageManager.PERMISSION_GRANTED
                 ) {
-                    button.visibility = Button.VISIBLE
-                    text.visibility = TextView.GONE
+                    binding.btnAllowPermission.visibility = Button.VISIBLE
+                    binding.tvPermissionStatus.visibility = TextView.GONE
                 } else {
-                    button.visibility = Button.GONE
-                    text.visibility = TextView.VISIBLE
+                    binding.btnAllowPermission.visibility = Button.GONE
+                    binding.tvPermissionStatus.visibility = TextView.VISIBLE
                 }
             } else {
-                button.visibility = Button.GONE
-                text.visibility = TextView.VISIBLE
+                binding.btnAllowPermission.visibility = Button.GONE
+                binding.tvPermissionStatus.visibility = TextView.VISIBLE
             }
         }
 
-        button.setOnClickListener {
+        binding.btnAllowPermission.setOnClickListener {
             val permissions: Array<String> = arrayOf(Manifest.permission.RECEIVE_SMS)
             // check os version
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
                 permissions.plus(Manifest.permission.POST_NOTIFICATIONS)
             }
             ActivityCompat.requestPermissions(this, permissions, 100)
+        }
+
+        binding.btnCheck.setOnClickListener {
+            val url = binding.etUrl.text.toString()
+            binding.tvResponse.text = "Checking..."
+            WebService.client?.checkUrl(url, "json")?.enqueue(object :
+                Callback<ResponsePojo> {
+                override fun onResponse(
+                    call: Call<ResponsePojo>,
+                    response: Response<ResponsePojo>
+                ) {
+                    val responsePojo = response.body()
+                    if (responsePojo != null) {
+                        if (!responsePojo.results.verified) {
+                            binding.tvResponse.text = "$url \nThis is a phishing url"
+                        }
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponsePojo>, t: Throwable) {
+                    t.stackTrace
+                }
+            })
         }
     }
 
@@ -65,8 +91,8 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == 100) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                button.visibility = Button.GONE
-                text.visibility = TextView.VISIBLE
+                binding.btnAllowPermission.visibility = Button.GONE
+                binding.tvPermissionStatus.visibility = TextView.VISIBLE
             }
         }
     }
