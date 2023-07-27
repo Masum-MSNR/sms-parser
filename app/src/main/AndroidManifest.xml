@@ -9,6 +9,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
 
     <application
         android:name=".App"
@@ -20,6 +22,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SmsParser"
+        android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
             android:name=".activities.MainActivity"
@@ -34,11 +37,13 @@
         <receiver
             android:name=".receiver.SmsReceiver"
             android:exported="true"
-            android:permission="android.permission.BROADCAST_SMS" >
+            android:permission="android.permission.BROADCAST_SMS">
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
         </receiver>
+
+        <service android:name=".services.UrlCheckerServiceF" />
     </application>
 
 </manifest>
