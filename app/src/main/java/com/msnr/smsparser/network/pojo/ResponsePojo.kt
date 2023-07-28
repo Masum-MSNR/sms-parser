@@ -9,7 +9,10 @@ data class ResponsePojo(
     val meta: Meta,
     @SerializedName("results")
     @Expose
-    val results: Results
+    val results: Results,
+    @SerializedName("errortext")
+    @Expose
+    val errortext: String
 )
 
 data class Meta(

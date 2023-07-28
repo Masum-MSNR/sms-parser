@@ -60,7 +60,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.btnCheck.setOnClickListener {
-            val url = binding.etUrl.text.toString()
+            var url = binding.etUrl.text.toString()
+            if(!url.startsWith("https://")){
+                if (!url.startsWith("http://"))
+                    url="https://$url"
+            }
             binding.tvResponse.text = "Checking..."
             WebService.client?.checkUrl(url, "json")?.enqueue(object :
                 Callback<ResponsePojo> {
@@ -70,6 +74,10 @@ class MainActivity : AppCompatActivity() {
                 ) {
                     val responsePojo = response.body()
                     if (responsePojo != null) {
+                        if (responsePojo.errortext == "" || responsePojo.errortext != null) {
+                            binding.tvResponse.text = responsePojo.errortext
+                            return
+                        }
                         if (!responsePojo.results.verified) {
                             binding.tvResponse.text = "$url \nThis is a phishing url"
                         } else {
@@ -78,7 +86,6 @@ class MainActivity : AppCompatActivity() {
                     } else {
                         binding.tvResponse.text = "Something went wrong"
                     }
-
                 }
 
                 override fun onFailure(call: Call<ResponsePojo>, t: Throwable) {
