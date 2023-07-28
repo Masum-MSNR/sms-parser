@@ -78,11 +78,17 @@ class MainActivity : AppCompatActivity() {
                             binding.tvResponse.text = responsePojo.errortext
                             return
                         }
-                        if (!responsePojo.results.verified) {
+                        if(!responsePojo.results.inDatabase){
                             binding.tvResponse.text = "$url \nThis is a phishing url"
-                        } else {
-                            binding.tvResponse.text = "$url \nThis is not a phishing url"
+                            return
+                        }else{
+                            if (!responsePojo.results.verified) {
+                                binding.tvResponse.text = "$url \nThis is a phishing url"
+                            } else {
+                                binding.tvResponse.text = "$url \nThis is not a phishing url"
+                            }
                         }
+
                     } else {
                         binding.tvResponse.text = "Something went wrong"
                     }

@@ -30,10 +30,10 @@ class SmsReceiver : BroadcastReceiver() {
             Log.v("TAG", "onReceive: $urls")
 
             for (url in urls) {
-                var tempUrl=url
-                if(!tempUrl.startsWith("https://")){
+                var tempUrl = url
+                if (!tempUrl.startsWith("https://")) {
                     if (!tempUrl.startsWith("http://"))
-                        tempUrl="https://$tempUrl"
+                        tempUrl = "https://$tempUrl"
                 }
                 WebService.client?.checkUrl(tempUrl, "json")
                     ?.enqueue(object : Callback<ResponsePojo> {
@@ -43,9 +43,17 @@ class SmsReceiver : BroadcastReceiver() {
                         ) {
                             val responsePojo = response.body()
                             if (responsePojo != null) {
-                                if (responsePojo.errortext==""||responsePojo.errortext != null)
+                                if (responsePojo.errortext == "" || responsePojo.errortext != null)
                                     return
-                                if (!responsePojo.results.verified) {
+                                if (responsePojo.results.inDatabase) {
+                                    if (!responsePojo.results.verified) {
+                                        NotificationHelper.displayNotification(
+                                            context,
+                                            tempUrl,
+                                            "This is a phishing url"
+                                        )
+                                    }
+                                }else{
                                     NotificationHelper.displayNotification(
                                         context,
                                         tempUrl,
